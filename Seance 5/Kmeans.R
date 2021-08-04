@@ -10,8 +10,8 @@ summary(iris)
 # tirer l'aleatoirement les moy. de k groups
 set.seed(30)
 
+iris=iris
 iris2=iris[,1:4]
-View(iris)
 
 # standardization des donnees
 iris_stand=scale(iris[,1:4])
@@ -25,7 +25,6 @@ iris_kmeans
 # within cluster sum of squares  (R2) : between_SS / total_SS which is SSB / SST
 
 #**********************************************
-
 #rajouter les resultats de k-means dans la table originale (iris)
 iris$Cluster=iris_kmeans$cluster
 iris_clus1=iris[iris$Cluster==1,]
