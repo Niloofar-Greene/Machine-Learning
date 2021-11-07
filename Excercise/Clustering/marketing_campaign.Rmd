@@ -1,0 +1,107 @@
+---
+title: "Marketing_campaign"
+author: "Niloofar Greene"
+date: "13/10/2021"
+output: html_document
+---
+
+ 
+```{r setup, include=FALSE}
+#Load libraries
+library(readr)
+library(Hmisc)
+library(ggplot2)
+library(dplyr)
+```
+# Load 
+```{r
+data <- read_delim("marketing_campaign.csv", "\t", escape_double = FALSE)
+```
+# Cleaning & Manipulaition
+```{r
+data <- na.omit(data)
+data$ID=as.character(data$ID)
+data$Dt_Customer=as.POSIXct(data$Dt_Customer, format="%d-%m-%Y")
+data <- data[data$Income<600000,]
+```
+# Converting some fileds to other meaningful fields
+**Create _age_ columns**
+```{r
+data$age = 2021-data$Year_Birth
+```
+
+```{r 
+min(data$age)
+max(data$age)
+```
+
+**Creating age classes**
+```{r
+data$age_class=NA
+
+for (i in 1:nrow(data)) {
+  if (19<data$age[i] & data$age[i]<30 ) {data$age_class[i]="18-29"
+  } else if (29<data$age[i] & data$age[i]<40 ) {
+    data$age_class[i]="30-39"
+  } else if (39<data$age[i] & data$age[i]<50 ) {
+    data$age_class[i]="40-49"
+  } else if (49<data$age[i] & data$age[i]<60 ) {
+    data$age_class[i]="50-59"
+  } else if (59<data$age[i] & data$age[i]<70 ) {
+    data$age_class[i]="60-69"
+  } else {data$age_class[i]="70+"}
+}
+```
+**Creating Loyalty period field**
+```{r
+data$loyalty_period <- difftime(Sys.Date(),data$Dt_Customer, units="days")
+data$loyalty_period <- as.numeric(data$loyalty_period)
+data$loyalty_period <- data$loyalty_period/30
+```
+
+**Creating Number of children field**
+```{r
+data$nbr_children = data$Kidhome+data$Teenhome
+```
+
+**Creating spending field**
+```{r
+data$Spending=data$MntWines+data$MntFruits+data$MntMeatProducts+data$MntFishProducts+data$MntSweetProducts+data$MntGoldProds
+```
+## Converting Nominal fields to numeric fields
+**Education**
+```{r
+lab=paste0(round(table(data$Education)/sum(table(data$Education)),2) * 100,"%")
+P=ggplot(data, aes(data$Education)) + 
+  geom_bar()
+P
+#dev.off()
+
+data$Education =recode(data$Education,
+                    "Basic"      = "0",
+                    "2n Cycle"   = "1",
+                    "Graduation" = "2",
+                    "Master"     = "3",
+                    "PhD"        = "4")
+data$Education = as.numeric(data$Education)
+```
+**Marital_Status**
+```{r
+lab=paste0(round(table(data$Marital_Status)/sum(table(data$Marital_Status)),2) * 100,"%")
+
+data$Marital_Status[data$Marital_Status %in% c("Single","Divorced","Widow","Alone", "Absurd","YOLO")] <-  "Signle"
+data$Marital_Status[data$Marital_Status %in% c("Together","Married")] <-  "Couple"
+
+ggplot(data, aes(data$Marital_Status)) + 
+  geom_bar()
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
