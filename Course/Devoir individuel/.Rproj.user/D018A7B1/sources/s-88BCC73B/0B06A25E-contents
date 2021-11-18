@@ -1,3 +1,0 @@
-library(readr)
-X_data_examen_final <- read_delim("/Volumes/SD_cart/Education/HEC/Ete 2020/Devoir/Devoir final/ data_examen_final.csv", 
-                                    +     ";", escape_double = FALSE, trim_ws = TRUE)
